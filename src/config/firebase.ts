@@ -1,12 +1,11 @@
 // Firebase configuration
-// Replace these values with your actual Firebase config
 export const firebaseConfig = {
-  apiKey: "your-api-key-here",
+  apiKey: "AIzaSyB5x7T30EkC60dfdOaeUF7sMSjrTh3pjQM",
   authDomain: "team-urlaubsplaner-rlp.firebaseapp.com",
   projectId: "team-urlaubsplaner-rlp",
-  storageBucket: "team-urlaubsplaner-rlp.appspot.com",
-  messagingSenderId: "your-sender-id-here",
-  appId: "your-app-id-here"
+  storageBucket: "team-urlaubsplaner-rlp.firebasestorage.app",
+  messagingSenderId: "590899803409",
+  appId: "1:590899803409:web:adfd752d032c766f2ec8b0"
 };
 
 // Instructions for getting your Firebase config:
