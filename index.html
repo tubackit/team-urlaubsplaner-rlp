@@ -1,81 +1,18 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>Team Urlaubsplaner</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-        .status {
-            background: #e8f5e8;
-            border: 2px solid #4caf50;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .button {
-            background: #4caf50;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .button:hover {
-            background: #45a049;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🏖️ Team Urlaubsplaner</h1>
-        
-        <div class="status">
-            <h3>✅ Anwendung lädt!</h3>
-            <p>Diese Seite funktioniert auf Ihrem Handy. Die Hauptanwendung wird geladen...</p>
-        </div>
-        
-        <div class="status">
-            <h3>🚀 Live-Synchronisation</h3>
-            <p>Alle Änderungen werden automatisch zwischen allen Benutzern synchronisiert.</p>
-        </div>
-        
-        <a href="/" class="button">Zur Hauptanwendung</a>
-        
-        <script>
-            console.log('Mobile Test-Seite geladen');
-            
-            // Test ob JavaScript funktioniert
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('DOM geladen - JavaScript funktioniert');
-            });
-        </script>
-    </div>
-</body>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </head>
+  <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    <div id="root"></div>
+  </body>
 </html>
