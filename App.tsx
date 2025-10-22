@@ -12,6 +12,7 @@ import {
   TIME_OFF_TYPE_DETAILS,
   HOLIDAY_DATA,
 } from './constants';
+// import { useFirebaseSync } from './src/hooks/useFirebaseSync';
 
 // --- Helper Functions ---
 const getDaysInMonth = (year: number, month: number): Date[] => {

@@ -199,3 +199,13 @@ typings/
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+.firebaserc
+firebase.json
+firestore.rules
+firestore.indexes.json
+storage.rules
