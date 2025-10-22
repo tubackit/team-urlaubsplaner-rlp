@@ -20,7 +20,7 @@ export const useRealtimeSync = (options: RealtimeSyncOptions) => {
 
   useEffect(() => {
     // Initialize socket connection
-    const newSocket = io(import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001', {
+    const newSocket = io((import.meta as { env?: { VITE_BACKEND_URL?: string } }).env?.VITE_BACKEND_URL || 'http://localhost:3001', {
       transports: ['websocket', 'polling'],
       timeout: 20000,
       reconnection: true,
