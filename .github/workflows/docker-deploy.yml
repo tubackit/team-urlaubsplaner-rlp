@@ -1,0 +1,60 @@
+name: Docker Deployment (Optional)
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_to_docker:
+        description: 'Deploy to Docker Hub'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  docker-deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.deploy_to_docker == 'true' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Login to Docker Hub (Optional)
+      if: ${{ secrets.DOCKER_USERNAME }}
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    - name: Build Frontend Image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: ${{ secrets.DOCKER_USERNAME != '' }}
+        tags: |
+          team-urlaubsplaner-frontend:latest
+          ${{ secrets.DOCKER_USERNAME }}/team-urlaubsplaner-frontend:latest
+    
+    - name: Build Backend Image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        push: ${{ secrets.DOCKER_USERNAME != '' }}
+        tags: |
+          team-urlaubsplaner-backend:latest
+          ${{ secrets.DOCKER_USERNAME }}/team-urlaubsplaner-backend:latest
+    
+    - name: Create Docker Compose
+      run: |
+        echo "🐳 Docker images built successfully!"
+        echo "📦 Frontend: team-urlaubsplaner-frontend:latest"
+        echo "🔧 Backend: team-urlaubsplaner-backend:latest"
+        echo ""
+        echo "🚀 To deploy locally:"
+        echo "   docker-compose -f docker-compose.production.yml up -d"
+        echo ""
+        echo "🌐 To deploy to server:"
+        echo "   1. Copy docker-compose.production.yml to server"
+        echo "   2. Run: docker-compose -f docker-compose.production.yml up -d"
