@@ -8,7 +8,9 @@ import {
   onSnapshot, 
   query, 
   orderBy,
-  serverTimestamp 
+  serverTimestamp,
+  getDocs,
+  where
 } from 'firebase/firestore';
 import { db } from '../services/firebaseService';
 import { Employee, TimeOffType } from '../types';
@@ -149,10 +151,20 @@ export const useFirebaseSync = () => {
 
   const removeTimeOff = async (employeeId: string, date: string) => {
     try {
-      // Find and delete the time off record
-      // This is a simplified approach - in production, you'd want to store the document ID
-      // For now, we'll need to find the document first
-      console.log('Remove time off:', { employeeId, date });
+      // Find the time off record to delete
+      const timeOffQuery = query(
+        collection(db, 'timeOff'),
+        where('employeeId', '==', employeeId),
+        where('date', '==', date)
+      );
+      
+      const querySnapshot = await getDocs(timeOffQuery);
+      
+      // Delete all matching documents
+      const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
+      await Promise.all(deletePromises);
+      
+      console.log('Time off removed:', { employeeId, date });
     } catch (error) {
       console.error('Error removing time off:', error);
       throw error;
