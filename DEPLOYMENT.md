@@ -1,259 +1,240 @@
-# 🚀 Deployment Guide
+# 🚀 Deployment Guide - Team Urlaubsplaner
 
-Dieses Dokument beschreibt verschiedene Deployment-Optionen für den Team Urlaubsplaner RLP.
+## 📋 Übersicht
 
-## 📋 Voraussetzungen
+Dieser Guide erklärt, wie Sie den Team Urlaubsplaner für 10+ Mitarbeiter mit Echtzeit-Synchronisation deployen.
 
-- Node.js 18+
-- npm oder yarn
-- Git
-- (Optional) Docker für Container-Deployment
+## 🏗️ Architektur
 
-## 🏗️ Build Process
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Backend       │    │   Database      │
+│   (React)       │◄──►│   (Node.js)     │◄──►│   (SQLite)      │
+│   Port: 3000    │    │   Port: 3001    │    │   File-based    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │
+         └───────────────────────┼─────────────────────────────┐
+                                 │                             │
+                    ┌─────────────────┐              ┌─────────────────┐
+                    │   Nginx         │              │   Socket.IO     │
+                    │   Load Balancer │              │   Real-time     │
+                    │   Port: 80/443  │              │   Sync          │
+                    └─────────────────┘              └─────────────────┘
+```
 
-### Lokaler Build
+## 🛠️ Lokale Entwicklung
 
+### 1. Backend starten
 ```bash
-# Dependencies installieren
+cd backend
 npm install
-
-# Production Build erstellen
-npm run build
-
-# Build testen
-npm run preview
+npm run dev
 ```
 
-### Build Output
-
-Der Build-Prozess erstellt einen `dist/` Ordner mit:
-
-- Optimierte JavaScript/CSS Dateien
-- Statische Assets
-- HTML-Dateien
-
-## 🌐 Deployment Optionen
-
-### 1. Vercel (Empfohlen)
-
-**Vorteile:**
-
-- ✅ Automatisches Deployment
-- ✅ CDN Integration
-- ✅ HTTPS out-of-the-box
-- ✅ Environment Variables Support
-
-**Setup:**
-
-1. Vercel Account erstellen
-2. GitHub Repository verbinden
-3. Environment Variables setzen:
-   ```
-   GEMINI_API_KEY=your_api_key_here
-   ```
-4. Deploy
-
-**Vercel CLI:**
-
+### 2. Frontend starten
 ```bash
-npm i -g vercel
-vercel login
-vercel --prod
+npm install
+npm run dev
 ```
 
-### 2. Netlify
+### 3. URLs
+- **Frontend:** http://localhost:3000
+- **Backend:** http://localhost:3001
+- **API Health:** http://localhost:3001/api/health
 
-**Vorteile:**
+## 🐳 Docker Deployment
 
-- ✅ Drag & Drop Deployment
-- ✅ Form Handling
-- ✅ Serverless Functions
+### 1. Lokaler Test
+```bash
+# Alle Services starten
+docker-compose -f docker-compose.production.yml up -d
 
-**Setup:**
+# Logs anzeigen
+docker-compose -f docker-compose.production.yml logs -f
 
-1. Netlify Account erstellen
-2. Build settings:
-   - Build command: `npm run build`
-   - Publish directory: `dist`
+# Services stoppen
+docker-compose -f docker-compose.production.yml down
+```
+
+### 2. Production Server
+```bash
+# Repository klonen
+git clone https://github.com/your-username/team-urlaubsplaner-rlp.git
+cd team-urlaubsplaner-rlp
+
+# Environment Variables setzen
+cp .env.example .env.production
+# .env.production bearbeiten
+
+# Services starten
+docker-compose -f docker-compose.production.yml up -d
+```
+
+## ☁️ Cloud Deployment
+
+### Option 1: Vercel + Railway
+```bash
+# Frontend auf Vercel
+npx vercel --prod
+
+# Backend auf Railway
+railway login
+railway deploy
+```
+
+### Option 2: DigitalOcean App Platform
+1. Repository mit GitHub verbinden
+2. App Platform konfigurieren
 3. Environment Variables setzen
-4. Deploy
+4. Automatisches Deployment aktivieren
 
-**Netlify CLI:**
+### Option 3: AWS/GCP/Azure
+- **Frontend:** S3 + CloudFront (AWS) / Cloud Storage (GCP)
+- **Backend:** ECS/Fargate (AWS) / Cloud Run (GCP)
+- **Database:** RDS (AWS) / Cloud SQL (GCP)
 
-```bash
-npm i -g netlify-cli
-netlify login
-netlify deploy --prod --dir=dist
-```
+## 🔧 Konfiguration
 
-### 3. GitHub Pages
+### Environment Variables
 
-**Setup:**
-
-1. Repository Settings → Pages
-2. Source: GitHub Actions
-3. Workflow erstellen (siehe `.github/workflows/deploy.yml`)
-
-### 4. Docker Deployment
-
-**Build Image:**
-
-```bash
-docker build -t team-urlaubsplaner-rlp .
-```
-
-**Run Container:**
-
-```bash
-docker run -p 3000:80 team-urlaubsplaner-rlp
-```
-
-**Docker Compose:**
-
-```bash
-docker-compose up -d
-```
-
-### 5. Traditional Web Server
-
-**Nginx Configuration:**
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    root /var/www/team-urlaubsplaner-rlp/dist;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
-```
-
-**Apache Configuration:**
-
-```apache
-<VirtualHost *:80>
-    ServerName your-domain.com
-    DocumentRoot /var/www/team-urlaubsplaner-rlp/dist
-
-    <Directory /var/www/team-urlaubsplaner-rlp/dist>
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>
-```
-
-## 🔧 Environment Variables
-
-### Development
-
+#### Frontend (.env)
 ```env
-GEMINI_API_KEY=your_development_key
-NODE_ENV=development
+VITE_BACKEND_URL=https://your-backend-domain.com
+VITE_APP_NAME=Team Urlaubsplaner
 ```
 
-### Production
-
+#### Backend (.env)
 ```env
-GEMINI_API_KEY=your_production_key
 NODE_ENV=production
+PORT=3001
+FRONTEND_URL=https://your-frontend-domain.com
+DATABASE_URL=./vacation_planner.db
 ```
 
-## 📊 Performance Optimierung
-
-### Build Optimierungen
-
-- ✅ Code Splitting
-- ✅ Tree Shaking
-- ✅ Minification
-- ✅ Gzip Compression
-
-### CDN Integration
-
-```javascript
-// vite.config.ts
-export default defineConfig({
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ai: ['@google/genai'],
-        },
-      },
-    },
-  },
-});
+### GitHub Secrets (für CI/CD)
+```
+DOCKER_USERNAME=your-dockerhub-username
+DOCKER_PASSWORD=your-dockerhub-password
+SERVER_HOST=your-server-ip
+SERVER_USERNAME=your-server-user
+SERVER_SSH_KEY=your-private-ssh-key
 ```
 
-## 🔒 Security
+## 📊 Monitoring & Wartung
 
-### HTTPS Setup
+### Health Checks
+```bash
+# Backend Health
+curl https://your-domain.com/api/health
 
+# Frontend Status
+curl https://your-domain.com/
+```
+
+### Logs
+```bash
+# Docker Logs
+docker-compose -f docker-compose.production.yml logs -f
+
+# Backend Logs
+docker-compose -f docker-compose.production.yml logs -f backend
+
+# Nginx Logs
+docker-compose -f docker-compose.production.yml logs -f nginx
+```
+
+### Database Backup
+```bash
+# SQLite Backup
+docker-compose -f docker-compose.production.yml exec backend cp /app/vacation_planner.db /app/data/backup-$(date +%Y%m%d).db
+```
+
+## 🔒 Sicherheit
+
+### SSL/TLS
 ```bash
 # Let's Encrypt mit Certbot
-sudo certbot --nginx -d your-domain.com
+certbot --nginx -d your-domain.com
 ```
 
-### Security Headers
+### Firewall
+```bash
+# Nur notwendige Ports öffnen
+ufw allow 22    # SSH
+ufw allow 80    # HTTP
+ufw allow 443   # HTTPS
+ufw enable
+```
 
+### Rate Limiting
+- **API:** 10 requests/second
+- **General:** 30 requests/second
+- **WebSocket:** Verbindung pro IP
+
+## 📈 Skalierung
+
+### Für 10+ Mitarbeiter
+- **CPU:** 2+ Cores
+- **RAM:** 4+ GB
+- **Storage:** 20+ GB SSD
+- **Bandwidth:** 100+ Mbps
+
+### Load Balancing
 ```nginx
-add_header X-Frame-Options "SAMEORIGIN" always;
-add_header X-Content-Type-Options "nosniff" always;
-add_header X-XSS-Protection "1; mode=block" always;
-```
-
-## 📈 Monitoring
-
-### Analytics Integration
-
-```javascript
-// Google Analytics
-gtag('config', 'GA_MEASUREMENT_ID');
-```
-
-### Error Tracking
-
-```javascript
-// Sentry Integration
-import * as Sentry from '@sentry/react';
-Sentry.init({ dsn: 'YOUR_SENTRY_DSN' });
+upstream backend {
+    server backend1:3001;
+    server backend2:3001;
+    server backend3:3001;
+}
 ```
 
 ## 🚨 Troubleshooting
 
 ### Häufige Probleme
 
-**Build Fehler:**
-
+#### 1. Socket.IO Verbindung fehlschlägt
 ```bash
-# Cache leeren
-rm -rf node_modules package-lock.json
-npm install
+# Firewall prüfen
+ufw status
+# Port 3001 freigeben
+ufw allow 3001
 ```
 
-**Environment Variables:**
-
+#### 2. Database Lock
 ```bash
-# Überprüfen ob Variablen gesetzt sind
-echo $GEMINI_API_KEY
+# SQLite Lock entfernen
+docker-compose -f docker-compose.production.yml exec backend rm -f /app/vacation_planner.db-wal
 ```
 
-**Port Konflikte:**
-
+#### 3. Memory Issues
 ```bash
-# Anderen Port verwenden
-npm run preview -- --port 4173
+# Container Restart
+docker-compose -f docker-compose.production.yml restart backend
 ```
 
-## 📚 Weitere Ressourcen
+### Performance Monitoring
+```bash
+# Container Stats
+docker stats
 
-- [Vite Deployment Guide](https://vitejs.dev/guide/static-deploy.html)
-- [React Deployment](https://create-react-app.dev/docs/deployment/)
-- [Docker Best Practices](https://docs.docker.com/develop/dev-best-practices/)
+# Resource Usage
+htop
+```
 
----
+## 📞 Support
 
-**Happy Deploying! 🚀**
+Bei Problemen:
+1. **Logs prüfen:** `docker-compose logs -f`
+2. **Health Check:** `/api/health`
+3. **GitHub Issues:** Repository Issues erstellen
+4. **Documentation:** README.md und CONTRIBUTING.md
+
+## 🎯 Nächste Schritte
+
+1. **Repository auf GitHub erstellen**
+2. **Secrets konfigurieren**
+3. **Server vorbereiten**
+4. **Deployment ausführen**
+5. **Team einladen**
+
+**Viel Erfolg mit Ihrem Team Urlaubsplaner! 🎉**

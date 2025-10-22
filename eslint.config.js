@@ -36,6 +36,8 @@ export default [
         self: 'readonly',
         caches: 'readonly',
         fetch: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
       },
     },
     plugins: {
@@ -60,6 +62,26 @@ export default [
       },
     },
   },
+    {
+      files: ['backend/**/*.js'],
+      languageOptions: {
+        globals: {
+          process: 'readonly',
+          console: 'readonly',
+          require: 'readonly',
+          module: 'readonly',
+          exports: 'readonly',
+          __dirname: 'readonly',
+          __filename: 'readonly',
+          Buffer: 'readonly',
+          global: 'readonly',
+        },
+      },
+      rules: {
+        'no-unused-vars': 'warn',
+        'no-console': 'off',
+      },
+    },
     {
       ignores: [
         'dist/**', 
