@@ -84,8 +84,7 @@ export const HOLIDAY_DATA: Record<number, YearData> = {
       { date: '2026-12-26', name: '2. Weihnachtstag' },
     ],
     schoolHolidays: [
-      { name: 'Winterferien', startDate: '2026-02-16', endDate: '2026-02-20' },
-      { name: 'Osterferien', startDate: '2026-03-30', endDate: '2026-04-07' },
+      { name: 'Osterferien', startDate: '2026-03-30', endDate: '2026-04-10' },
       { name: 'Pfingstferien', startDate: '2026-05-26', endDate: '2026-05-29' },
       { name: 'Sommerferien', startDate: '2026-06-29', endDate: '2026-08-07' },
       { name: 'Herbstferien', startDate: '2026-10-05', endDate: '2026-10-16' },
