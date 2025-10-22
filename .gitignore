@@ -209,3 +209,9 @@ firebase.json
 firestore.rules
 firestore.indexes.json
 storage.rules
+
+# GitHub Pages build files
+index.html
+assets/
+manifest.json
+sw.js
