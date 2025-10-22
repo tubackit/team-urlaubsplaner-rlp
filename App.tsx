@@ -13,6 +13,8 @@ import {
   HOLIDAY_DATA,
 } from './constants';
 import { useFirebaseSync } from './src/hooks/useFirebaseSync';
+import { useAuth } from './src/hooks/useAuth';
+import { Auth, LogoutButton } from './src/components/Auth';
 
 // --- Helper Functions ---
 const getDaysInMonth = (year: number, month: number): Date[] => {
@@ -171,6 +173,9 @@ const TimeOffSelector: React.FC<TimeOffSelectorProps> = ({
 // --- Main App Component ---
 
 export default function App() {
+  // Authentication
+  const { user, loading: authLoading } = useAuth();
+  
   // Firebase integration
   const {
     employees: firebaseEmployees,
@@ -401,6 +406,24 @@ export default function App() {
   );
   const monthName = GERMAN_MONTH_NAMES[currentDate.getMonth()];
 
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Überprüfe Anmeldung...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login form if not authenticated
+  if (!user) {
+    return <Auth onAuthSuccess={() => {}} />;
+  }
+
+  // Show loading while fetching Firebase data
   if (firebaseLoading) {
     return (
       <div className="p-4 sm:p-6 lg:p-8 min-h-screen flex items-center justify-center">
@@ -425,12 +448,22 @@ export default function App() {
       )}
       <div className="max-w-7xl mx-auto">
         <header className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Team Urlaubsplaner
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400">
-            Rheinland-Pfalz (2025 & 2026)
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Team Urlaubsplaner
+              </h1>
+              <p className="text-gray-500 dark:text-gray-400">
+                Rheinland-Pfalz (2025 & 2026)
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Angemeldet als: {user.email}
+              </p>
+              <LogoutButton />
+            </div>
+          </div>
         </header>
 
         <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow flex flex-wrap items-center justify-between gap-4">

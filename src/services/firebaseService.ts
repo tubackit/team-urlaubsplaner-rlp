@@ -22,7 +22,7 @@ export const auth = getAuth(app);
 export const functions = getFunctions(app);
 
 // Connect to emulators in development
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATORS === 'true') {
   try {
     connectFirestoreEmulator(db, 'localhost', 8080);
     connectAuthEmulator(auth, 'http://localhost:9099');
