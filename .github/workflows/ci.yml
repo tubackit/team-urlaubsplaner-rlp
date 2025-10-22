@@ -60,19 +60,16 @@ jobs:
     - name: Build project
       run: npm run build
     
-    - name: Deploy to Vercel (Optional)
-      if: ${{ secrets.VERCEL_TOKEN != '' }}
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        vercel-args: '--prod'
-    
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: build-files
         path: dist/
         retention-days: 30
+    
+    - name: Create deployment info
+      run: |
+        echo "Build completed successfully!"
+        echo "Build artifacts uploaded to GitHub Actions"
+        echo "To deploy: Download artifacts and upload to your hosting provider"
 
