@@ -2,6 +2,27 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '../App';
 
+// Mock Firebase
+vi.mock('../src/hooks/useFirebaseSync', () => ({
+  useFirebaseSync: () => ({
+    employees: [
+      {
+        id: '1',
+        name: 'Max Mustermann',
+        department: 'OFFICE',
+        timeOff: [],
+      },
+    ],
+    timeOffRecords: {},
+    loading: false,
+    addEmployee: vi.fn(),
+    updateEmployee: vi.fn(),
+    deleteEmployee: vi.fn(),
+    addTimeOff: vi.fn(),
+    removeTimeOff: vi.fn(),
+  }),
+}));
+
 // Mock the constants
 vi.mock('../constants', () => ({
   GERMAN_MONTH_NAMES: ['Januar', 'Februar', 'März'],
