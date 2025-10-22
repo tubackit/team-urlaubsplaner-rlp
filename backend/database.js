@@ -1,6 +1,6 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
-// import { promisify } from 'util'; // Currently unused
+import { v4 as uuidv4 } from 'uuid';
 
 export class Database {
   constructor() {
@@ -132,7 +132,7 @@ export class Database {
   }
 
   async addTimeOff(employeeId, date, type) {
-    const timeOffId = require('uuid').v4();
+    const timeOffId = uuidv4();
     const now = new Date().toISOString();
 
     await this.db.run(`
