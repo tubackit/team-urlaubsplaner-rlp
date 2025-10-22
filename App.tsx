@@ -5,14 +5,14 @@ import React, {
   useRef,
   useLayoutEffect,
 } from 'react';
-import { Employee, TimeOff, TimeOffType, Department } from './types';
+import { Employee, TimeOffType, Department } from './types';
 import {
   GERMAN_MONTH_NAMES,
   GERMAN_DAY_NAMES_SHORT,
   TIME_OFF_TYPE_DETAILS,
   HOLIDAY_DATA,
 } from './constants';
-// import { useFirebaseSync } from './src/hooks/useFirebaseSync';
+import { useFirebaseSync } from './src/hooks/useFirebaseSync';
 
 // --- Helper Functions ---
 const getDaysInMonth = (year: number, month: number): Date[] => {
@@ -32,45 +32,7 @@ const isWeekend = (date: Date): boolean => {
   return day === 6 || day === 0; // Saturday or Sunday
 };
 
-const getInitialEmployees = (): Employee[] => {
-  const defaultEmployee = {
-    id: '1',
-    name: 'Max Mustermann',
-    department: Department.OFFICE,
-    timeOff: [] as TimeOff[],
-  };
-  const savedJSON = localStorage.getItem('employees');
-
-  // Explicitly handle the valid empty state first.
-  if (savedJSON === '[]') {
-    return [];
-  }
-
-  // Try to parse and validate any other stored data.
-  if (savedJSON) {
-    try {
-      const parsedData = JSON.parse(savedJSON);
-      if (Array.isArray(parsedData) && parsedData.length > 0) {
-        // Perform migration on each item to ensure data integrity
-        return parsedData.map(emp => ({
-          id: emp.id || String(Date.now() + Math.random()),
-          name: emp.name || 'Unnamed',
-          department: emp.department || Department.OFFICE,
-          timeOff: emp.timeOff || [],
-        }));
-      }
-    } catch (error) {
-      console.error(
-        'Failed to parse employees from localStorage, falling back to default:',
-        error
-      );
-      // Fall through to return default employee if parsing fails
-    }
-  }
-
-  // Fallback for no data, invalid data, or parsing errors.
-  return [defaultEmployee];
-};
+// getInitialEmployees is no longer needed with Firebase
 
 // --- Helper Components ---
 
@@ -209,7 +171,19 @@ const TimeOffSelector: React.FC<TimeOffSelectorProps> = ({
 // --- Main App Component ---
 
 export default function App() {
-  const [employees, setEmployees] = useState<Employee[]>(getInitialEmployees);
+  // Firebase integration
+  const {
+    employees: firebaseEmployees,
+    timeOffRecords,
+    loading: firebaseLoading,
+    addEmployee: firebaseAddEmployee,
+    // updateEmployee: firebaseUpdateEmployee, // Not used yet
+    deleteEmployee: firebaseDeleteEmployee,
+    addTimeOff: firebaseAddTimeOff,
+    removeTimeOff: firebaseRemoveTimeOff,
+  } = useFirebaseSync();
+
+  const [employees, setEmployees] = useState<Employee[]>(firebaseEmployees);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [newEmployeeName, setNewEmployeeName] = useState('');
   const [newEmployeeDepartment, setNewEmployeeDepartment] =
@@ -224,6 +198,11 @@ export default function App() {
   const todayStr = useMemo(() => formatDate(new Date()), []);
 
   const currentYear = currentDate.getFullYear();
+
+  // Update local state when Firebase data changes
+  useEffect(() => {
+    setEmployees(firebaseEmployees);
+  }, [firebaseEmployees]);
 
   const yearData = useMemo(() => {
     const data = HOLIDAY_DATA[currentYear] || {
@@ -248,9 +227,7 @@ export default function App() {
 
   const { publicHolidays, schoolHolidays } = yearData;
 
-  useEffect(() => {
-    localStorage.setItem('employees', JSON.stringify(employees));
-  }, [employees]);
+  // Firebase handles persistence, no localStorage needed
 
   useLayoutEffect(() => {
     const today = new Date();
@@ -354,52 +331,53 @@ export default function App() {
     );
   };
 
-  const handleAddEmployee = (e: React.FormEvent) => {
+  const handleAddEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newEmployeeName.trim()) {
-      setEmployees([
-        ...employees,
-        {
-          id: Date.now().toString(),
+      try {
+        await firebaseAddEmployee({
           name: newEmployeeName.trim(),
           department: newEmployeeDepartment,
-          timeOff: [],
-        },
-      ]);
-      setNewEmployeeName('');
+        });
+        setNewEmployeeName('');
+      } catch (error) {
+        console.error('Error adding employee:', error);
+        window.alert('Fehler beim Hinzufügen des Mitarbeiters');
+      }
     }
   };
 
-  const handleDeleteEmployee = (id: string) => {
+  const handleDeleteEmployee = async (id: string) => {
     const confirmMessage =
       employees.length === 1
         ? 'Dies ist der letzte Mitarbeiter. Möchten Sie die Liste wirklich leeren?'
         : 'Mitarbeiter wirklich löschen?';
     if (window.confirm(confirmMessage)) {
-      setEmployees(currentEmployees =>
-        currentEmployees.filter(emp => emp.id !== id)
-      );
+      try {
+        await firebaseDeleteEmployee(id);
+      } catch (error) {
+        console.error('Error deleting employee:', error);
+        window.alert('Fehler beim Löschen des Mitarbeiters');
+      }
     }
   };
 
-  const handleUpdateTimeOff = (
+  const handleUpdateTimeOff = async (
     employeeId: string,
     date: string,
     type: TimeOffType | null
   ) => {
-    setEmployees(emps =>
-      emps.map(emp => {
-        if (emp.id === employeeId) {
-          const updatedTimeOff = emp.timeOff.filter(t => t.date !== date);
-          if (type !== null) {
-            updatedTimeOff.push({ date, type });
-          }
-          return { ...emp, timeOff: updatedTimeOff };
-        }
-        return emp;
-      })
-    );
-    setPopover(null);
+    try {
+      if (type !== null) {
+        await firebaseAddTimeOff(employeeId, date, type);
+      } else {
+        await firebaseRemoveTimeOff(employeeId, date);
+      }
+      setPopover(null);
+    } catch (error) {
+      console.error('Error updating time off:', error);
+      window.alert('Fehler beim Aktualisieren des Urlaubs');
+    }
   };
 
   const handleCellClick = (
@@ -422,6 +400,17 @@ export default function App() {
     currentDate.getMonth()
   );
   const monthName = GERMAN_MONTH_NAMES[currentDate.getMonth()];
+
+  if (firebaseLoading) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Lade Daten...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
@@ -567,7 +556,7 @@ export default function App() {
                     </div>
                     {departmentEmployees.map(emp => {
                       const timeOffMap = new Map(
-                        emp.timeOff.map(t => [t.date, t.type])
+                        Object.entries(timeOffRecords[emp.id] || {})
                       );
                       return (
                         <div
