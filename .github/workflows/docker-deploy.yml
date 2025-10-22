@@ -1,18 +1,11 @@
-name: Docker Deployment (Optional)
+name: Docker Build (Local)
 
 on:
   workflow_dispatch:
-    inputs:
-      deploy_to_docker:
-        description: 'Deploy to Docker Hub'
-        required: false
-        default: false
-        type: boolean
 
 jobs:
-  docker-deploy:
+  docker-build:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.deploy_to_docker == 'true' }}
     
     steps:
     - name: Checkout code
@@ -21,40 +14,45 @@ jobs:
     - name: Setup Docker Buildx
       uses: docker/setup-buildx-action@v3
     
-    - name: Login to Docker Hub (Optional)
-      if: ${{ secrets.DOCKER_USERNAME }}
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-    
     - name: Build Frontend Image
       uses: docker/build-push-action@v5
       with:
         context: .
-        push: ${{ secrets.DOCKER_USERNAME != '' }}
-        tags: |
-          team-urlaubsplaner-frontend:latest
-          ${{ secrets.DOCKER_USERNAME }}/team-urlaubsplaner-frontend:latest
+        push: false
+        tags: team-urlaubsplaner-frontend:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
     
     - name: Build Backend Image
       uses: docker/build-push-action@v5
       with:
         context: ./backend
-        push: ${{ secrets.DOCKER_USERNAME != '' }}
-        tags: |
-          team-urlaubsplaner-backend:latest
-          ${{ secrets.DOCKER_USERNAME }}/team-urlaubsplaner-backend:latest
+        push: false
+        tags: team-urlaubsplaner-backend:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
     
-    - name: Create Docker Compose
+    - name: Test Docker Images
+      run: |
+        echo "🐳 Testing Docker images..."
+        docker run --rm team-urlaubsplaner-backend:latest node --version
+        echo "✅ Backend image test passed"
+    
+    - name: Create Deployment Instructions
       run: |
         echo "🐳 Docker images built successfully!"
         echo "📦 Frontend: team-urlaubsplaner-frontend:latest"
         echo "🔧 Backend: team-urlaubsplaner-backend:latest"
         echo ""
-        echo "🚀 To deploy locally:"
+        echo "🚀 Local Deployment:"
         echo "   docker-compose -f docker-compose.production.yml up -d"
         echo ""
-        echo "🌐 To deploy to server:"
+        echo "🌐 Server Deployment:"
         echo "   1. Copy docker-compose.production.yml to server"
         echo "   2. Run: docker-compose -f docker-compose.production.yml up -d"
+        echo ""
+        echo "📋 Manual Docker Hub Push (if needed):"
+        echo "   docker tag team-urlaubsplaner-frontend:latest your-username/team-urlaubsplaner-frontend:latest"
+        echo "   docker tag team-urlaubsplaner-backend:latest your-username/team-urlaubsplaner-backend:latest"
+        echo "   docker push your-username/team-urlaubsplaner-frontend:latest"
+        echo "   docker push your-username/team-urlaubsplaner-backend:latest"
