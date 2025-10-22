@@ -1,0 +1,69 @@
+{
+  "name": "team-urlaubsplaner-rlp",
+  "version": "1.0.0",
+  "description": "Ein interaktiver Urlaubsplaner für Teams in Rheinland-Pfalz für 2025 & 2026",
+  "type": "module",
+  "keywords": [
+    "urlaubsplaner",
+    "team-management",
+    "react",
+    "typescript",
+    "vite",
+    "rheinland-pfalz",
+    "kalender",
+    "feiertage",
+    "schulferien"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/team-urlaubsplaner-rlp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/team-urlaubsplaner-rlp/issues"
+  },
+  "homepage": "https://github.com/your-username/team-urlaubsplaner-rlp#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@google/genai": "^1.26.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.38.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^22.14.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "@vitejs/plugin-react": "^5.0.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "husky": "^9.1.7",
+    "jsdom": "^27.0.1",
+    "prettier": "^3.6.2",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0",
+    "vitest": "^3.2.4"
+  }
+}
