@@ -83,13 +83,15 @@ export default [
       },
     },
     {
-      ignores: [
-        'dist/**', 
-        'node_modules/**', 
-        '*.config.js', 
-        '*.config.ts',
-        'public/sw.js',
-        '.github/**'
-      ],
+  ignores: [
+    'dist/**',
+    'assets/**',
+    'node_modules/**',
+    '*.config.js',
+    '*.config.ts',
+    'public/sw.js',
+    'sw.js',
+    '.github/**'
+  ],
     },
 ];
