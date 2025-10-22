@@ -22,6 +22,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       assetsDir: 'assets',
+      target: 'es2015',
       rollupOptions: {
         output: {
           assetFileNames: 'assets/[name].[hash].[ext]',
